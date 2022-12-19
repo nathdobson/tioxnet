@@ -45,10 +45,10 @@ mkdir $BUILD_DIRECTORY
 ORIGIN=$PWD
 cd $BUILD_DIRECTORY
 if [[ "$KIND" == "patch" ]]; then
-  git clone $BRANCH file:///$ORIGIN $BUILD_DIRECTORY
+  git clone -b $BRANCH file:///$ORIGIN $BUILD_DIRECTORY
   git checkout $BRANCH
 elif [[ "$KIND" == "minor" ]]; then
-  git clone main file:///ORIGIN $BUILD_DIRECTORY
+  git clone -b main file:///ORIGIN $BUILD_DIRECTORY
   git checkout -b $BRANCH
 fi
 #./build.sh
