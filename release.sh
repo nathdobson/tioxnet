@@ -10,7 +10,7 @@ fi
 BUILD_DIRECTORY=/tmp/tioxnet-release-builder
 rm -rf /tmp/tioxnet-release-builder
 mkdir $BUILD_DIRECTORY
-git clone --depth 1 . $BUILD_DIRECTORY
+git clone --depth 1 file:///$PWD $BUILD_DIRECTORY
 cd $BUILD_DIRECTORY
 git branch $VERSION
 ./build.sh
