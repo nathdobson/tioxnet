@@ -3,13 +3,23 @@ set -e
 set -u
 
 KIND=$1
-VERSION="v$(npm pkg get version | cut -d \" -f 2)"
-echo $VERSION
-exit
-BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
-SRC_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+#OLD_VERSION="v$(npm pkg get version | cut -d \" -f 2)"
+#echo $VERSION
+#BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
+#SRC_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+#if [[ "$SRC_BRANCH" == "$BRANCH" ]]; then
+#
+#elif [["$SRC_BRANCH" == "main"]]; then
+#else
+#  "Unrecognized branch $SRC_BRANCH"
+#fi
 
 if [[ "$KIND" == "patch" ]]; then
+  BRANCH="v$(npm pkg get version | cut -d \" -f 2 | cut -d '.' -f 1-2)"
+  echo $BRANCH
+  exit
+  git checkout $BRANCH
+
 elif [[ "$KIND" == "minor" ]]; then
   VERSION=$(npm version --no-git-tag-version minor)
   git add .
