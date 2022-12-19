@@ -6,6 +6,10 @@ if [[ `git status --porcelain` ]]; then
   echo "There are local changes - aborting"
   exit 1
 fi
+if ! git rev-parse --verify $VERSION; then
+  echo "The new branch already exists."
+  exit 1
+fi
 
 BUILD_DIRECTORY=/tmp/tioxnet-release-builder
 rm -rf /tmp/tioxnet-release-builder
