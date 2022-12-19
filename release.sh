@@ -3,21 +3,24 @@ set -e
 set -u
 
 KIND=$1
+VERSION="v$(npm pkg get version | cut -d \" -f 2)"
+echo $VERSION
+exit
+BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
+SRC_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "$KIND" == "patch" ]]; then
-  echo "Doing patch update."
 elif [[ "$KIND" == "minor" ]]; then
-  echo "Doing minor update."
+  VERSION=$(npm version --no-git-tag-version minor)
+  git add .
+  git commit -m "Bumping version to $KIND"
 else
   echo "Unknown kind $KIND"
   exit 1
 fi
 
-VERSION=$(npm version --no-git-tag-version $KIND)
-git add .
-git commit -m "Bumping version to $KIND"
-BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
-#SRC_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+
 
 #BRANCH=v$MAJOR.$MINOR
 #TAG=v$MAJOR.$MINOR.$PATCH
