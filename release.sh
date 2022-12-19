@@ -14,5 +14,6 @@ git clone --depth 1 file:///$PWD $BUILD_DIRECTORY
 cd $BUILD_DIRECTORY
 git branch $VERSION
 ./build.sh
+echo $VERSION > ./version.txt
 git add .
 git commit -m "Built release $VERSION"
