@@ -57,4 +57,3 @@ git add .
 git commit -m "Built release $VERSION"
 git tag -a $VERSION -m "Releasing $VERSION"
 git push --set-upstream origin $BRANCH
-git push --set-upstream origin $VERSION
