@@ -1,13 +1,43 @@
-const PriorityQueue = require("updatable-priority-queue");
+import PriorityQueue from "./heap.js"
+
 const {Point} = require("./geom");
 export const kTioxColors = ['rgb(28, 62, 203)',
     'rgb(80, 212, 146)', 'rgb(151, 78, 224)',
     'rgb(234, 27, 234)', 'rgb(164, 132, 252)', 'rgb(29, 157, 127)',
     'rgb(74, 26, 204)', 'rgb(6, 190, 234)',
     'rgb(206, 24, 115)', 'rgb(0, 0, 0)']
+let enumify = require('enumify');
+
+export class Priority extends enumify.Enumify {
+    static CANCEL = new Priority()
+    static CORE = new Priority()
+    static TRANSIT = new Priority()
+    static DEFAULT = new Priority()
+    static _ = this.closeEnum();
+
+    compareTo(other) {
+        return this.enumOrdinal - other.enumOrdinal
+    }
+
+}
+
+class TimeKey {
+    constructor(time, priority) {
+        this.time = time
+        this.priority = priority
+    }
+
+    compareTo(other) {
+        if (this.time === other.time) {
+            return this.priority.compareTo(other.priority)
+        }
+        return this.time - other.time
+    }
+}
+
 export class Simulation {
     constructor() {
-        this.queue = new PriorityQueue()
+        this.queue = new PriorityQueue((a, b) => a.compareTo(b))
         this.actors = new Set()
         this.time = 0
     }
@@ -15,21 +45,21 @@ export class Simulation {
     elapse(time) {
         while (true) {
             let next = this.queue.peek();
-            if (next && next.item.wake < time) {
+            if (next && next.item.getWake() < time) {
                 next = next.item
-                let elapse = next.wake
+                let elapse = next.getWake()
                 if (elapse < this.time) {
                     elapse = this.time
                 }
                 this.time = elapse
-                next.wake = Number.POSITIVE_INFINITY
+                next.setWake(Number.POSITIVE_INFINITY)
                 next.elapse(elapse, true)
             } else {
                 break;
             }
         }
-        for (let x of this.actors) {
-            console.assert(x.wake >= time)
+        for (let actor of this.actors) {
+            console.assert(actor.getWake() >= time)
         }
         for (let actor of this.actors) {
             actor.elapse(time, false)
@@ -40,10 +70,14 @@ export class Simulation {
 
 export class Actor {
     constructor(sim) {
+        console.assert(sim instanceof Simulation, sim)
         this.sim = sim
+        this._priority = Priority.DEFAULT
         this._wake = Number.POSITIVE_INFINITY
-        sim.queue.insert(this, this._wake)
+        sim.queue.insert(this, new TimeKey(this._wake, this._priority))
         sim.actors.add(this)
+        this.onProduce = null
+        this.onConsume = null
     }
 
     peekProduce() {
@@ -68,18 +102,23 @@ export class Actor {
     elapseItem(time, item, wake) {
     }
 
-    set wake(time) {
+    setWake(time = Number.NEGATIVE_INFINITY, priority = Priority.DEFAULT) {
         console.assert(!isNaN(time))
         this._wake = time
-        this.sim.queue.updateKey(this, time)
+        this._priority = priority
+        this.sim.queue.updateKey(this, new TimeKey(this._wake, this._priority))
     }
 
-    get wake() {
+    getWake() {
         return this._wake
     }
 
+    getPriority() {
+        return this._priority
+    }
+
     cancel() {
-        this.sim.queue.updateKey(this, Number.NEGATIVE_INFINITY)
+        this.sim.queue.updateKey(this, new TimeKey(Number.NEGATIVE_INFINITY, Priority.CANCEL))
         let popped = this.sim.queue.pop()
         console.assert(popped && popped.item === this);
         this.sim.actors.delete(this)
@@ -113,56 +152,34 @@ export class Item extends Actor {
     }
 }
 
-export class Node extends Actor {
-    constructor(sim) {
+export class Driver extends Actor {
+    constructor(sim, from, to) {
         super(sim)
-        this.pos = new Point(10, 10)
-        this.products = new Set()
-    }
-
-    layout(pos) {
-        this.pos = pos
+        this.from = from
+        this.to = to
+        this.from.onProduce = () => {
+            console.assert(this.constructor.name === "Driver")
+            this.setWake()
+        }
+        this.to.onConsume = () => {
+            this.setWake()
+        }
     }
 
     elapse(time, wake) {
         if (wake) {
-            let progress = false
-            if (this.producer) {
-                let item = this.producer.peekProduce()
-                console.assert(this.consumer, this)
-                if (item && this.consumer.peekConsume(item)) {
-                    item.owner = this.consumer
-                    this.producer.produce(item)
-                    this.consumer.consume(item)
-                    this.wake = Number.NEGATIVE_INFINITY
-                    return
-                }
-            }
-            let old = this.products
-            this.products = new Set()
-            for (let item of old) {
-                if (this.consumer.peekConsume(item)) {
-                    item.owner = this.consumer
-                    this.consumer.consume(item)
-                    this.wake = Number.NEGATIVE_INFINITY
-                    return
-                }
+            let item = this.from.peekProduce()
+            if (item && this.to.peekConsume(item)) {
+                this.from.produce(item)
+                this.to.consume(item)
+                this.setWake()
             }
         }
     }
 
-    poke() {
-        this.wake = Number.NEGATIVE_INFINITY
-    }
-
-    consume(item) {
-        this.products.add(item)
-        this.wake = Number.NEGATIVE_INFINITY
-    }
-
-    paint(ctx) {
-        ctx.beginPath()
-        ctx.arc(this.pos.x, this.pos.y, 2, 0, 2 * Math.PI, false)
-        ctx.fill()
-    }
+    // paint(ctx) {
+    //     ctx.beginPath()
+    //     ctx.arc(this.pos.x, this.pos.y, 2, 0, 2 * Math.PI, false)
+    //     ctx.fill()
+    // }
 }

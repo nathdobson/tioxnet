@@ -44,4 +44,8 @@ export class Rectangle {
     vCenter(height) {
         return new Rectangle(this.x, this.y + (this.height - height) / 2, this.width, height)
     }
+
+    top(height){
+        return new Rectangle(this.x, this.y, this.width, height)
+    }
 }

@@ -20,7 +20,7 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
-    "jstat": "^1.9.6",
-    "updatable-priority-queue": "^0.0.1"
+    "enumify": "^2.0.0",
+    "jstat": "^1.9.6"
   }
 }

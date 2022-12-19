@@ -4,7 +4,6 @@ import {Point, Rectangle} from "./geom.js"
 import {makeSimulation, kStageWidth, kStageHeight} from "./simulation.js"
 import {Actor, Item, Simulation} from "./base.js"
 
-let PriorityQueue = require('updatable-priority-queue');
 let jStat = require('jstat');
 
 
@@ -12,7 +11,6 @@ class Animation {
     constructor(canvas) {
         this.canvas = canvas
         this.devicePixelRatio = window.devicePixelRatio || 1;
-
         this.sim = makeSimulation()
     }
 
@@ -32,6 +30,9 @@ class Animation {
             this.ctx.scale(vRatio, vRatio);
             this.ctx.translate(-kStageWidth / 2, 0)
         }
+        this.ctx.beginPath()
+        this.ctx.rect(0,0,kStageWidth,kStageHeight)
+        this.ctx.clip()
     }
 
     repaint() {
