@@ -8,12 +8,11 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 BUILD_DIRECTORY=/tmp/tioxnet-release-builder
-rm -r /tmp/tioxnet-release-builder
+rm -rf /tmp/tioxnet-release-builder
 mkdir $BUILD_DIRECTORY
 git clone --depth 1 . $BUILD_DIRECTORY
 cd $BUILD_DIRECTORY
 git branch $VERSION
-npm install
-npm run build -- --mode=production
+./build.sh
 git add .
 git commit -m "Built release $VERSION"
