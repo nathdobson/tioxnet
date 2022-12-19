@@ -13,7 +13,9 @@ else
   exit 1
 fi
 
-VERSION=$(npm version $KIND)
+VERSION=$(npm version --no-git-tag-version $KIND)
+git add .
+git commit -m "Bumping version to $KIND"
 BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
 #SRC_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
