@@ -48,7 +48,7 @@ if [[ "$KIND" == "patch" ]]; then
   git clone -b $BRANCH file:///$ORIGIN $BUILD_DIRECTORY
   git checkout $BRANCH
 elif [[ "$KIND" == "minor" ]]; then
-  git clone -b main file:///ORIGIN $BUILD_DIRECTORY
+  git clone -b main file:///$ORIGIN $BUILD_DIRECTORY
   git checkout -b $BRANCH
 fi
 #./build.sh
