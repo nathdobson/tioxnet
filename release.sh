@@ -5,9 +5,9 @@ set -u
 KIND=$1
 
 if [[ "$KIND" == "patch" ]]; then
-
+echo "patch"
 elif [[ "$KIND" == "minor" ]]; then
-
+echo "minor"
 else
   echo "Unknown kind $KIND"
   exit 1
