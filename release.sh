@@ -16,12 +16,11 @@ KIND=$1
 
 if [[ "$KIND" == "patch" ]]; then
   BRANCH="v$(npm pkg get version | cut -d \" -f 2 | cut -d '.' -f 1-2)"
-  echo $BRANCH
-  exit
-  git checkout $BRANCH
-
 elif [[ "$KIND" == "minor" ]]; then
   VERSION=$(npm version --no-git-tag-version minor)
+  BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
+  echo $VERSION $BRANCH
+  exit
   git add .
   git commit -m "Bumping version to $KIND"
 else
