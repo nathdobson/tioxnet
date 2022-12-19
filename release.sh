@@ -6,7 +6,7 @@ if [[ `git status --porcelain` ]]; then
   echo "There are local changes - aborting"
   exit 1
 fi
-if ! git rev-parse --verify $VERSION; then
+if git rev-parse --verify $VERSION; then
   echo "The new branch already exists."
   exit 1
 fi
