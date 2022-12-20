@@ -9,7 +9,10 @@ if [[ "$KIND" == "patch" ]]; then
   MINOR=$3
   echo "patch $MINOR"
 elif [[ "$KIND" == "minor" ]]; then
-  echo "minor"
+  VERSION=$(npm version --no-git-tag-version  minor)
+  git add .
+  git commit -m "Bumping version"
+  BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
 else
   echo "Unknown kind $KIND"
   exit 1
@@ -27,10 +30,6 @@ if [[ "$KIND" == "patch" ]]; then
   VERSION=$(npm version --no-git-tag-version patch)
 elif [[ "$KIND" == "minor" ]]; then
   git clone -b main file:///$ORIGIN $BUILD_DIRECTORY
-  VERSION=$(npm version --no-git-tag-version  minor)
-  git add .
-  git commit -m "Bumping version"
-  BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
   git checkout -b $BRANCH
 fi
 

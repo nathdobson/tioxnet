@@ -158,7 +158,7 @@ export class Driver extends Actor {
         this.from = from
         this.to = to
         this.from.onProduce = () => {
-            console.assert(this.constructor.name === "Driver")
+            console.assert(this instanceof Driver)
             this.setWake()
         }
         this.to.onConsume = () => {
