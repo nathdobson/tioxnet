@@ -28,13 +28,16 @@ if [[ "$KIND" == "patch" ]]; then
 elif [[ "$KIND" == "minor" ]]; then
   git clone -b main file:///$ORIGIN $BUILD_DIRECTORY
   VERSION=$(npm version --no-git-tag-version  minor)
+  git add .
+  git commit -m "Bumping version"
   BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
   git checkout -b $BRANCH
 fi
 
-#./build.sh
-echo $RANDOM > dist.txt
+./build.sh
 git add .
 git commit -m "Built release $VERSION"
 git tag -a $VERSION -m "Releasing $VERSION"
-#git push --set-upstream origin $BRANCH
+git push --set-upstream origin $BRANCH
+cd $ORIGIN
+git push --all origin
