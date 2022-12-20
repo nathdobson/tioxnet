@@ -3,33 +3,34 @@ set -e
 set -u
 
 KIND=$1
+MAJOR=$2
 
 if [[ "$KIND" == "patch" ]]; then
-echo "patch"
+  MINOR=$3
+  echo "patch $MINOR"
 elif [[ "$KIND" == "minor" ]]; then
-echo "minor"
+  echo "minor"
 else
   echo "Unknown kind $KIND"
   exit 1
 fi
-
-SRC_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 BUILD_DIRECTORY=/tmp/tioxnet-release-builder
 rm -rf /tmp/tioxnet-release-builder
 mkdir $BUILD_DIRECTORY
 ORIGIN=$PWD
 cd $BUILD_DIRECTORY
-git clone -b $SRC_BRANCH file:///$ORIGIN $BUILD_DIRECTORY
 if [[ "$KIND" == "patch" ]]; then
+  BRANCH="v$MAJOR.$MINOR"
+  git clone -b $BRANCH file:///$ORIGIN $BUILD_DIRECTORY
   git checkout $BRANCH
   VERSION=$(npm version --no-git-tag-version patch)
 elif [[ "$KIND" == "minor" ]]; then
   git clone -b main file:///$ORIGIN $BUILD_DIRECTORY
-  git checkout -b $BRANCH
   VERSION=$(npm version --no-git-tag-version  minor)
+  BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
+  git checkout -b $BRANCH
 fi
-BRANCH=$(echo $VERSION | cut -d '.' -f 1-2)
 
 #./build.sh
 echo $RANDOM > dist.txt
