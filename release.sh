@@ -36,5 +36,5 @@ fi
 echo $RANDOM > dist.txt
 git add .
 git commit -m "Built release $VERSION"
-git tag -a release-$VERSION -m "Releasing $VERSION"
+git tag -a $VERSION -m "Releasing $VERSION"
 #git push --set-upstream origin $BRANCH
