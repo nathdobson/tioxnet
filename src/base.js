@@ -1,4 +1,5 @@
 import PriorityQueue from "./heap.js"
+import {Enumify} from "enumify";
 
 const {Point} = require("./geom");
 export const kTioxColors = ['rgb(28, 62, 203)',
@@ -20,6 +21,17 @@ export class Priority extends enumify.Enumify {
     }
 
 }
+
+export class PaintLayer extends Enumify {
+    static MACHINE = new PaintLayer();
+    static NODE = new PaintLayer();
+    static EDGE = new PaintLayer();
+    static ITEM = new PaintLayer();
+
+    static NO_PAINT = new PaintLayer();
+    static _ = this.closeEnum();
+}
+
 
 class TimeKey {
     constructor(time, priority) {
@@ -125,7 +137,11 @@ export class Actor {
     }
 
     paint(ctx) {
+        throw ("Abstract paint " + this.constructor.name)
+    }
 
+    reorder() {
+        return null
     }
 }
 
@@ -133,6 +149,7 @@ export class Item extends Actor {
     constructor(sim) {
         super(sim);
         this.color = kTioxColors[Math.floor(Math.random() * kTioxColors.length)]
+        this.layer = PaintLayer.ITEM
     }
 
     elapse(time, wake) {
@@ -164,6 +181,7 @@ export class Driver extends Actor {
         this.to.onConsume = () => {
             this.setWake()
         }
+        this.layer = PaintLayer.NO_PAINT
     }
 
     elapse(time, wake) {
@@ -177,9 +195,4 @@ export class Driver extends Actor {
         }
     }
 
-    // paint(ctx) {
-    //     ctx.beginPath()
-    //     ctx.arc(this.pos.x, this.pos.y, 2, 0, 2 * Math.PI, false)
-    //     ctx.fill()
-    // }
 }

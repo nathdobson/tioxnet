@@ -2,7 +2,7 @@ import "./index.css"
 import {GammaDist} from "./random.js"
 import {Point, Rectangle} from "./geom.js"
 import {makeSimulation, kStageWidth, kStageHeight} from "./simulation.js"
-import {Actor, Item, Simulation} from "./base.js"
+import {Actor, Item, PaintLayer, Simulation} from "./base.js"
 
 let jStat = require('jstat');
 
@@ -31,7 +31,7 @@ class Animation {
             this.ctx.translate(-kStageWidth / 2, 0)
         }
         this.ctx.beginPath()
-        this.ctx.rect(0,0,kStageWidth,kStageHeight)
+        this.ctx.rect(0, 0, kStageWidth, kStageHeight)
         this.ctx.clip()
     }
 
@@ -41,10 +41,30 @@ class Animation {
         this.ctx.moveTo(5, 5);
         this.ctx.rect(5, 5, kStageWidth - 10, kStageHeight - 10)
         this.ctx.stroke();
+        let byLayer = PaintLayer.enumValues.map(_ => new Set())
+        let remaining = new Set(this.sim.actors)
         for (let actor of this.sim.actors) {
-            this.ctx.save()
-            actor.paint(this.ctx)
-            this.ctx.restore()
+            let reorder = actor.reorder();
+            if (reorder) {
+                for (let ordered of reorder) {
+                    if (remaining.has(ordered)) {
+                        remaining.delete(ordered)
+                        byLayer[ordered.layer.enumOrdinal].add(ordered)
+                    }
+                }
+            }
+        }
+        for (let unordered of remaining) {
+            console.assert(unordered.layer, unordered.constructor.name)
+            byLayer[unordered.layer.enumOrdinal].add(unordered)
+        }
+        byLayer[PaintLayer.NO_PAINT.enumOrdinal] = new Set()
+        for (let layer of byLayer) {
+            for (let actor of layer) {
+                this.ctx.save()
+                actor.paint(this.ctx)
+                this.ctx.restore()
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-import {Actor, Simulation, Item, Driver, Priority} from "./base.js"
+import {Actor, Simulation, Item, Driver, Priority, PaintLayer} from "./base.js"
 import {GammaDistr} from "./random";
 import {ConsumerBalancer} from "./balancer";
 
@@ -8,6 +8,7 @@ const {Point, Rectangle} = require("./geom");
 class Exit extends Actor {
     constructor(sim) {
         super(sim)
+        this.layer = PaintLayer.NODE
     }
 
     paint(ctx) {
@@ -41,6 +42,7 @@ class Arrival extends Actor {
         this.setWake()
         this.delay = delay
         this.output = null
+        this.layer=PaintLayer.NODE
     }
 
     elapse(time, wake) {
@@ -75,6 +77,7 @@ class Transit extends Actor {
         this.p1 = null
         this.p2 = null
         this.priority = Priority.TRANSIT
+        this.layer = PaintLayer.EDGE
     }
 
     elapseItem(time, item, wake) {
@@ -128,6 +131,8 @@ class Machine extends Actor {
         }
         queue.machine = this
         new Driver(sim, queue, new ConsumerBalancer(sim, cores))
+        this.layer = PaintLayer.MACHINE
+        console.assert(this.layer)
     }
 
     paint(ctx) {
@@ -165,6 +170,7 @@ class Core extends Actor {
         this.delay = delay
         this.output = null
         this.priority = Priority.CORE
+        this.layer = PaintLayer.NODE
     }
 
     peekConsume(item) {
@@ -213,6 +219,7 @@ class Queue extends Actor {
     constructor(sim) {
         super(sim)
         this.queue = []
+        this.layer = PaintLayer.NODE
     }
 
     peekConsume(item) {
@@ -261,6 +268,9 @@ class Queue extends Actor {
         ctx.lineTo(this.bounds.x, this.bounds.y2)
         ctx.stroke()
     }
+    reorder() {
+        return this.queue.slice().reverse()
+    }
 }
 
 export let kStageWidth = 500
@@ -268,7 +278,7 @@ export let kStageHeight = 400
 export let kMargin = 10
 
 export function makeSimulation() {
-    let arrivalDistr = GammaDistr.fromRateCV(1.0, 1.0)
+    let arrivalDistr = GammaDistr.fromRateCV(10.0, 1.0)
     let requestDistr = GammaDistr.fromMeanCV(1.0, 1.0)
     let coreDistr = GammaDistr.fromRateCV(0.1, 1.0)
     let responseDistr = GammaDistr.fromMeanCV(1.0, 1.0)

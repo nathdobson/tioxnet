@@ -1,4 +1,4 @@
-import {Actor} from "./base";
+import {Actor, PaintLayer} from "./base";
 
 export class ConsumerBalancer extends Actor {
     constructor(sim, outputs) {
@@ -10,6 +10,7 @@ export class ConsumerBalancer extends Actor {
                 this.onConsume()
             }
         }
+        this.layer = PaintLayer.NO_PAINT
     }
 
     peekConsume(item) {
