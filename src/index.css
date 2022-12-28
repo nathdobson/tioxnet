@@ -1,2 +1,23 @@
-* { margin: 0; padding: 0;}
-body, html { height:100%; }
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    height: 100%;
+}
+
+.toggle-button {
+
+}
+
+.toggle-button-on {
+    width: 60px;
+    height: 60px;
+}
+
+.toggle-button-off {
+    width: 60px;
+    height: 60px;
+    display: none;
+}

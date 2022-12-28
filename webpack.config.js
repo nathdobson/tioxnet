@@ -8,9 +8,11 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             title: 'Output Management',
-            template: './src/index.html'
+            template: './src/index.html',
+            filename: 'index.html',
         }),
     ],
+    devtool: 'eval-source-map',
     output: {
         filename: '[name].bundle.js',
         path: path.resolve(__dirname, 'dist'),
@@ -29,7 +31,15 @@ module.exports = {
                     'style-loader',
                     'css-loader'
                 ]
-            }
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                loader: 'url-loader'
+            },
+            {
+                test: /\.html$/,
+                loader: 'html-loader'
+            },
         ]
 
     }

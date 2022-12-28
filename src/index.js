@@ -1,8 +1,10 @@
 import "./index.css"
+import playImage from "./assets/images/play.svg";
 import {GammaDist} from "./random.js"
 import {Point, Rectangle} from "./geom.js"
 import {makeSimulation, kStageWidth, kStageHeight} from "./simulation.js"
 import {Actor, Item, PaintLayer, Simulation} from "./base.js"
+import {ToggleButton} from "./toggle.js"
 
 let jStat = require('jstat');
 
@@ -81,14 +83,26 @@ anim.repaint();
 let time = 0
 let fps = 32
 window.setInterval(() => {
-    anim.elapse(time);
-    time += 1.0 / fps
-    anim.repaint();
+    if (play.state) {
+        anim.elapse(time);
+        time += 1.0 / fps
+        anim.repaint();
+    }
 }, 1000 / fps);
 
+let play = new ToggleButton()
+let rhs = document.getElementById("rhs")
+rhs.appendChild(play.button)
 
 window.addEventListener('resize', function () {
     anim.revalidate();
     anim.repaint();
 }, false);
 
+document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+        play.toggle()
+        e.stopPropagation()
+        e.preventDefault()
+    }
+},false)

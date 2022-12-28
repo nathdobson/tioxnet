@@ -1,4 +1,4 @@
-import {Actor, PaintLayer} from "./base";
+import {Actor, PaintLayer} from "./base.js";
 
 export class ConsumerBalancer extends Actor {
     constructor(sim, outputs) {

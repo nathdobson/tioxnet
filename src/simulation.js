@@ -1,6 +1,6 @@
 import {Actor, Simulation, Item, Driver, Priority, PaintLayer} from "./base.js"
-import {GammaDistr} from "./random";
-import {ConsumerBalancer} from "./balancer";
+import {GammaDistr} from "./random.js";
+import {ConsumerBalancer} from "./balancer.js";
 
 const {Point, Rectangle} = require("./geom");
 
