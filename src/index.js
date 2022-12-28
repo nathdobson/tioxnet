@@ -46,6 +46,12 @@ class Animation {
         let byLayer = PaintLayer.enumValues.map(_ => new Set())
         let remaining = new Set(this.sim.actors)
         for (let actor of this.sim.actors) {
+            let hides = actor.hides();
+            if (hides) {
+                for (let hide of hides) {
+                    remaining.delete(hide)
+                }
+            }
             let reorder = actor.reorder();
             if (reorder) {
                 for (let ordered of reorder) {
@@ -105,4 +111,4 @@ document.addEventListener("keydown", (e) => {
         e.stopPropagation()
         e.preventDefault()
     }
-},false)
+}, false)

@@ -4,7 +4,6 @@ import {ConsumerBalancer} from "./balancer.js";
 
 const {Point, Rectangle} = require("./geom");
 
-
 class Exit extends Actor {
     constructor(sim) {
         super(sim)
@@ -42,7 +41,7 @@ class Arrival extends Actor {
         this.setWake()
         this.delay = delay
         this.output = null
-        this.layer=PaintLayer.NODE
+        this.layer = PaintLayer.NODE
     }
 
     elapse(time, wake) {
@@ -143,10 +142,10 @@ class Machine extends Actor {
 
     layout(bounds) {
         this.bounds = bounds
-        this.queue.layout(bounds.hFraction(0, 0.25).removeMargin(kMargin).top(20))
+        this.queue.layout(bounds.hFraction(0, 0.5).removeMargin(kMargin).top(20))
         for (let i = 0; i < this.cores.length; i++) {
             this.cores[i].layout(
-                bounds.hFraction(0.25, 1.0)
+                bounds.hFraction(0.5, 1.0)
                     .vFraction(i / this.cores.length, (i + 1) / this.cores.length)
                     .removeMargin(3))
 
@@ -219,6 +218,9 @@ class Queue extends Actor {
         super(sim)
         this.queue = []
         this.layer = PaintLayer.NODE
+        this.maxVisible = 30
+        this.maxSpaced = 15
+        this.hiddenFraction = 0.3
     }
 
     peekConsume(item) {
@@ -246,16 +248,34 @@ class Queue extends Actor {
     }
 
     elapse(time, wake) {
-        let maxSep = this.bounds.width / this.queue.length;
-        let sep = Math.min(15, maxSep)
-        for (let i = 0; i < this.queue.length; i++) {
-            this.queue[i].x = this.bounds.x2 - sep * i - this.bounds.height / 2;
-            this.queue[i].y = this.bounds.y + this.bounds.height / 2;
+        if (this.queue.length <= this.maxVisible) {
+            let slots = Math.max(this.queue.length, this.maxSpaced)
+            for (let i = 0; i < this.queue.length; i++) {
+                this.place(this.queue[i], i, slots)
+            }
+        } else {
+            let left = Math.ceil(this.maxVisible * (1 - this.hiddenFraction) / 2)
+            let right = Math.floor(this.maxVisible * (1 - this.hiddenFraction) / 2)
+            for (let i = 0; i < left; i++) {
+                this.place(this.queue[i], i, this.maxVisible)
+            }
+            for (let i = this.queue.length - right; i < this.queue.length; i++) {
+                let k = i - this.queue.length + this.maxVisible
+                this.place(this.queue[i], k, this.maxVisible)
+            }
         }
+    }
+
+    place(item, index, slots) {
+        let fraction = index / (slots - 1)
+        item.x = this.start.x * (1 - fraction) + this.end.x * fraction
+        item.y = this.start.y * (1 - fraction) + this.end.y * fraction
     }
 
     layout(bounds) {
         this.bounds = bounds
+        this.start = new Point(this.bounds.x2 - this.bounds.height / 2, this.bounds.y + this.bounds.height / 2)
+        this.end = new Point(this.bounds.x + this.bounds.height / 2, this.bounds.y + this.bounds.height / 2)
     }
 
 
@@ -266,9 +286,24 @@ class Queue extends Actor {
         ctx.lineTo(this.bounds.x2, this.bounds.y2)
         ctx.lineTo(this.bounds.x, this.bounds.y2)
         ctx.stroke()
+        if (this.queue.length > this.maxVisible) {
+            let center = this.bounds.center()
+            ctx.textAlign = "center"
+            ctx.textBaseline = "middle"
+            ctx.fillText("..." + this.queue.length + "...", center.x, center.y)
+        }
     }
+
     reorder() {
         return this.queue.slice().reverse()
+    }
+
+    hides() {
+        if (this.queue.length > this.maxVisible) {
+            let left = Math.ceil(this.maxVisible * (1 - this.hiddenFraction) / 2)
+            let right = Math.floor(this.maxVisible * (1 - this.hiddenFraction) / 2)
+            return this.queue.slice(left, this.queue.length - right)
+        }
     }
 }
 

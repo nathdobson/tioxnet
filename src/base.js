@@ -143,6 +143,10 @@ export class Actor {
     reorder() {
         return null
     }
+
+    hides() {
+        return null
+    }
 }
 
 export class Item extends Actor {
