@@ -162,10 +162,10 @@ export class Item extends Actor {
         ctx.beginPath()
         let size = 10;
         ctx.fillStyle = this.color
-        ctx.strokeStyle = "rgb(255,255,255)"
+        ctx.shadowColor = "black"
+        ctx.shadowBlur = 10;
         ctx.rect(this.x - size / 2, this.y - size / 2, size, size)
         ctx.fill()
-        ctx.stroke()
     }
 }
 

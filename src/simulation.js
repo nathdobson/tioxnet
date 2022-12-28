@@ -143,7 +143,6 @@ class Machine extends Actor {
 
     layout(bounds) {
         this.bounds = bounds
-        let fraction = 0.5
         this.queue.layout(bounds.hFraction(0, 0.25).removeMargin(kMargin).top(20))
         for (let i = 0; i < this.cores.length; i++) {
             this.cores[i].layout(
